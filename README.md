@@ -1,46 +1,77 @@
-# 单类月饼 CNN
+# 中秋节，手把手训练一个识别月饼的CNN！🥮
 
-这个安装包只包含月饼训练图片和一个月饼类别。train.py 从零训练单类 CNN；predict.py 根据模型的重建误差与月饼特征距离，输出“像月饼”或“不像月饼”。模型不会输出蛋糕、汽车等其他类别。
+我之前写过《图片识别模型到底是怎么训练出来的？》。今天就是中秋节了，所以我写了一个识别月饼的模型手把手，训练出自己的模型。这篇不需要你提前懂CNN，跟着准备图片、运行代码，最后拿一张新图片考考模型就可以了！
 
-data/mooncake 中有 1205 张图片：998 张 AI 月饼合成背景变体和 207 张来自公开数据集的真实月饼图片。没有用户拍摄的照片，也没有非月饼训练图片。图片来源见 DATASET_SOURCES.md 与 data/source_manifest.csv。
+> 有提前训练好的模型best.pt，可以开箱即用
 
-## macOS
+> 运行内存：运行内存至少8G
+> 储存空间：至少剩余5G
 
-安装 Homebrew 后，在解压的项目目录运行：
+## 第一步：安装Python和PyTorch
 
-~~~sh
-brew install python@3.12
-python3.12 -m venv .venv
-.venv/bin/python -m pip install -r requirements.txt
-.venv/bin/python train.py
-.venv/bin/python predict.py "你的图片.jpg"
-~~~
+Python和PyTorch是训练模型必装的东西，所以我们要先安装。Python是运行代码需要的语言，PyTorch则帮我们计算CNN、Loss和反向传播。
 
-## Windows 命令提示符
+如果你是Mac，并且安装了Homebrew（安装链接：[Homebrew](https://brew.sh/)）在项目文件夹打开终端运行：
+```
+brew install python@3.12 && python3.12 -m venv .venv && .venv/bin/python -m pip install torch torchvision pillow
+```
 
-~~~bat
+如果你是Windows，那么可以运行：
+```
 winget install -e --id Python.Python.3.12
-~~~
+```
 
-关闭并重新打开命令提示符，回到项目目录：
+安装后关掉命令提示符，重新打开，在项目文件夹里输入：
+```
+py -3.12 -m venv .venv && .venv\Scripts\python.exe -m pip install torch torchvision pillow
+```
 
-~~~bat
-py -3.12 -m venv .venv
-.venv\Scripts\python.exe -m pip install -r requirements.txt
+Windows的安装方法可以参考[微软说明](https://learn.microsoft.com/en-us/windows/dev-environment/python)
+
+下载需要时间，现在去吃一块月饼吧！
+
+## 第二步：准备数据集
+
+恭喜你太棒了，你已经完成了第一步！现在我们要完成第二步，就是“写”教程，也就是准备数据集。我们要准备一种图片：就是月饼图片。我准备了1000+张图片，1000+张都是是月饼图片这样子你就不用费尽心思找图片并且标注图片啦。图片的目录是：data/mooncake/
+
+我分成了训练集、验证集和测试集三个。现在来复习一下吧：训练集是平时做题，验证集是模拟考试，测试集留到最后当期末考试。
+
+## 第三步：让CNN开始训练
+
+现在训练的准备工作都完成了，我们就开始训练吧！
+
+我们在《图片识别模型到底是怎么训练出来的？》讲过一个CNN模型首先得先用RGB“变”成数字，也就是说我们要用RGB先处理图片，然后丢给隐藏层进行处理：从图片中提取特征，生成特征图。然后利用反向传播修改模型参数。输入图片 → 做出预测 → 计算Loss → 反向传播 → 调整参数 → 再看下一批图片
+
+如果你是Mac的话运行：
+```
+.venv/bin/python train.py
+```
+
+如果你是Windows运行：
+```
 .venv\Scripts\python.exe train.py
-.venv\Scripts\python.exe predict.py "你的图片.jpg"
-~~~
+```
 
-默认训练 35 轮，80% 月饼图用于训练，20% 月饼图用于验证；每轮模型保存在 checkpoints/from-scratch/，其中 best.pt 是验证误差最低的一轮。若想启用早停，可在训练命令后加 --patience 10。重新训练后，可用以下命令测试新模型：
+然后终端就会出现各种训练数据，比如Loss等等。
 
-~~~sh
-python predict.py "你的图片.jpg" --checkpoint checkpoints/from-scratch/best.pt
-~~~
+## 训练完成了，现在该验证一下啦
 
-上面这条简写命令要求先激活虚拟环境；未激活时请改用对应系统的虚拟环境 Python 路径。
+首先，你要先下载一张在训练数据里面没有出现的图片，然后运行：
 
-checkpoints/oneclass/best.pt 是此前选定的示例模型，只用于让读者解压后直接体验；predict.py 默认始终读取它，不会自动切换到新训练的模型。train.py 始终从零训练，也不会加载它。只有显式传入 --checkpoint checkpoints/from-scratch/best.pt，predict.py 才读取读者新训练的模型。
+Mac：
+```bash
+.venv/bin/python predict.py "你的图片.jpg" --checkpoint checkpoints/from-scratch/best.pt
+```
 
-示例模型使用与本包同一批月饼图片训练，但单类判断仍可能把蛋糕等糕点误认为月饼。异常分数不是概率，也不能保证任意照片的判断正确。
+Windows：
+```bash
+.venv\Scripts\python.exe predict.py "你的图片.jpg" --checkpoint checkpoints/from-scratch/best.pt
+```
 
-如果要按自己的显卡安装 CUDA 版 PyTorch，请参照官方安装页：https://pytorch.org/get-started/locally/
+假如你认为这样子太麻烦了也可以把PTH文件发给Codex，让他帮你写一个客户端。
+
+假如模型识别错误了，你也不用着急，你可以问一问聪明的Codex，或者在评论区留言问一下我，我会乐意为你帮助的。
+
+崩溃了！！！为什么蛋糕曲奇总是识别成月饼，不想要改了，就当作一个可以识别蛋糕曲奇和月饼的模型吧
+
+喵，这次我们真的从图片开始，训练出了一个识别月饼的小CNN。背后除了卷积、Loss和反向传播，当然还有工程师的头发。中秋快乐，快拿月饼考考你的模型吧！🥮🐱
