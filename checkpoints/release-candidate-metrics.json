@@ -1,0 +1,29 @@
+{
+  "positive_ai": {
+    "accepted_as_mooncake": 93,
+    "count": 99,
+    "rate": 0.9393939393939394,
+    "mean_score": 0.9890715856613084
+  },
+  "positive_real": {
+    "accepted_as_mooncake": 17,
+    "count": 22,
+    "rate": 0.7727272727272727,
+    "mean_score": 0.9249083521373739
+  },
+  "negative_ai": {
+    "accepted_as_mooncake": 18,
+    "count": 798,
+    "rate": 0.022556390977443608,
+    "mean_score": 0.235340168681789
+  },
+  "negative_commons": {
+    "accepted_as_mooncake": 80,
+    "count": 518,
+    "rate": 0.15444015444015444,
+    "mean_score": 0.43829776025396733
+  },
+  "threshold": 0.9941198825836182,
+  "excluded_commons_backgrounds": 284,
+  "note": "Development evaluation, not a new external blind set."
+}
